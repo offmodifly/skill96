@@ -7,7 +7,7 @@ Personnel evaluation system for วิทยาลัยเทคนิคน่
 - `frontend/`: Nuxt 4 + **Vuetify 4** (vite-plugin-vuetify, autoImport), axios
 - `backend/`: Express + mysql2 + bcrypt + JWT, nodemon (`index.js`)
 - `database/pretest30.sql`: init script loaded by MySQL on first start of an empty volume
-- Run everything with `docker compose -f Docker-compose.yml up -d --build` **from `D:\skill96`**. An older copy of this project at `D:\pretest30-main` uses the same container names; if page edits don't show up, run `docker inspect Frontend_Container` and check the bind-mount source is `D:\skill96rontend`.
+- Run everything with `docker compose -f Docker-compose.yml up -d --build` **from `D:\skill96`**. An older copy of this project at `D:\pretest30-main` uses the same container names; if page edits don't show up, run `docker inspect Frontend_Container` and check the bind-mount source is `D:\skill96\frontend`.
 
 | Service | Container | URL |
 |---|---|---|
