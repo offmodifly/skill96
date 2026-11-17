@@ -61,6 +61,7 @@
                         <td>{{ items.email }}</td>
                         <td>{{ items.username }}</td>
                         <td class="text-center">
+                            <v-btn icon="mdi-lock-reset" color="info" variant="tonal" size="small" class="ma-1" title="รีเซ็ตรหัสผ่าน" @click="resetPw(items)"></v-btn>
                             <v-btn icon="mdi-pencil" color="warning" variant="tonal" size="small" class="ma-1" @click="edit(items)"></v-btn>
                             <v-btn icon="mdi-delete" color="error" variant="tonal" size="small" class="ma-1" @click="del(items.id_member)"></v-btn>
                         </td>
@@ -159,6 +160,22 @@ const fetch = async () => {
 
 const edit = (items: any) => {
     form.value = { ...items }
+}
+
+// รีเซ็ตรหัสผ่าน: ระบบสุ่มรหัสผ่านชั่วคราวให้ แล้วแสดงให้ฝ่ายบุคลากรแจ้งผู้ใช้
+const resetPw = async (items: any) => {
+    if (!confirm(`ต้องการรีเซ็ตรหัสผ่านของ ${items.fname} ${items.lname} ใช่หรือไม่`)) return
+    try {
+        const res = await axios.put(`${staff}/member/reset-password/${items.id_member}`, {}, { headers })
+        alert(`รีเซ็ตรหัสผ่านสำเร็จ
+ชื่อผู้ใช้: ${items.username}
+รหัสผ่านชั่วคราว: ${res.data.tempPassword}
+(กรุณาแจ้งผู้ใช้ ระบบจะให้เปลี่ยนรหัสผ่านเมื่อเข้าระบบ)`)
+        await fetch()
+    } catch (error) {
+        console.error('error reset password', error)
+        alert('รีเซ็ตรหัสผ่านไม่สำเร็จ')
+    }
 }
 
 const del = async (id_member: number) => {

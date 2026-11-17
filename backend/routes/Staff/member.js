@@ -1,5 +1,6 @@
 const express =require('express')
 const bc = require('bcrypt')
+const crypto = require('crypto')
 const db = require('../../db')
 const {verifyToken,requireRole} = require('../../middleware/authmiddleware')
 const router = express.Router()
@@ -66,6 +67,28 @@ router.get('/showC',verifyToken,requireRole('ฝ่ายบุคลากร')
     } catch (error) {
         console.error("error get",error);
         res.status(500).json({message:"Error get"})
+    }
+})
+
+// รีเซ็ตรหัสผ่าน: สุ่มรหัสผ่านชั่วคราวให้ แล้วส่งกลับไปให้ฝ่ายบุคลากรแจ้งผู้ใช้
+// (ผู้รับการประเมินผลจะถูกบังคับเปลี่ยนรหัสผ่านตอนเข้าระบบครั้งถัดไป)
+router.put('/reset-password/:id_member',verifyToken,requireRole('ฝ่ายบุคลากร'),async (req,res) => {
+    try {
+        const {id_member} = req.params
+        const [rows] = await db.query(`select role from tb_member where id_member = ?`,[id_member])
+        // รีเซ็ตได้เฉพาะผู้รับการประเมินผลและกรรมการประเมิน
+        if(!rows[0] || rows[0].role === 'ฝ่ายบุคลากร'){
+            return res.status(400).json({message:"ไม่สามารถรีเซ็ตรหัสผ่านของผู้ใช้นี้ได้"})
+        }
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789' // ไม่ใช้ตัวที่สับสนง่าย เช่น O 0 l 1
+        let tempPassword = ''
+        for(let i = 0; i < 8; i++) tempPassword += chars[crypto.randomInt(chars.length)]
+        const hash = await bc.hash(tempPassword,10)
+        await db.query(`update tb_member set password = ?, must_change_pw = 1 where id_member = ?`,[hash,id_member])
+        res.json({tempPassword,message:"reset success"})
+    } catch (error) {
+        console.error("error reset password",error);
+        res.status(500).json({message:"Error reset password"})
     }
 })
 
