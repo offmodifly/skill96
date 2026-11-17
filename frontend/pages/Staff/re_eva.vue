@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container class="print-full" fluid>
         <PageHeader title="รายงานรายชื่อผู้รับการประเมินผล" subtitle="กดปุ่มพิมพ์เพื่อพิมพ์หรือบันทึกเป็น PDF" icon="mdi-file-chart" class="d-print-none" />
 
         <!-- หัวรายงานที่จะแสดงเฉพาะตอนพิมพ์ -->
@@ -64,6 +64,33 @@ onMounted(fetch)
     td, th {
         border: 1px solid black !important;
         color: black !important;
+    }
+}
+</style>
+
+<!-- ไม่ใส่ scoped เพราะต้องแก้ v-main ของ layout: ตอนพิมพ์ให้เนื้อหาขยายเต็มหน้ากระดาษ -->
+<style>
+@media print {
+    /* เอาช่องว่างด้านซ้าย (เมนู) และด้านบน (แถบหัว) ที่ layout เว้นไว้ออก */
+    .v-main:has(.print-full) {
+        padding: 0 !important;
+    }
+    /* v-container ของ layout ที่ครอบหน้านี้อีกชั้น */
+    .v-main:has(.print-full) > .v-container {
+        padding: 0 !important;
+    }
+    .print-full {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+    /* ตารางเต็มความกว้าง ไม่มีเงา ไม่มีมุมโค้ง */
+    .print-full .v-card {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+    }
+    .print-full table {
+        width: 100% !important;
     }
 }
 </style>
