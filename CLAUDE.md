@@ -40,6 +40,11 @@ Login needs username + password + the matching role (ประเภทสมา
 - Flag is set back to 1 when Staff creates an account or resets a password (`Staff/member.js`); `/api/auth/regis` (self sign-up) and changing the password in `edit_eva` set it to 0.
 - After testing the flow, reset `testman1` (password `123456`, `must_change_pw=1`) so the demo works again.
 
+### Staff reset password (manage_eva / manage_commit)
+- The blue `mdi-lock-reset` button in each row calls `PUT /api/Staff/member/reset-password/:id_member`. The backend generates an 8-char temporary password, stores its bcrypt hash, sets `must_change_pw=1`, and returns the plain password once; the page shows it in an `alert()` for Staff to pass on.
+- Only evaluatees and committee can be reset; a `ฝ่ายบุคลากร` account is refused (400). Committee members get a temporary password too, but are not forced to change it (the force-change check only applies to ผู้รับการประเมินผล).
+- When testing, restore the account afterwards (password `123456`), otherwise the documented test password no longer works.
+
 ## Frontend conventions (pages that have been redesigned)
 
 The redesigned pages are `pages/index.vue` (login), all of `pages/Staff/`, all of `pages/Evaluatee/`, and all of `pages/Committee/` (blue `color="#007fff"` headers, `bg-blue-lighten-5` topic titles, matching the Committee app-bar colour in `layouts/default.vue`). Only `pages/regis.vue` still uses the old style.
@@ -52,6 +57,7 @@ Every redesigned page follows the same pattern:
 5. Script: declare `const headers = { Authorization: \`Bearer ${token}\` }` once and reuse it. Keep the existing `alert()`/`confirm()` UX.
 6. Dates: `new Date(d).toLocaleDateString('th-TH')`. For `type="date"` inputs, use `value.slice(0, 10)` when editing.
 7. Use Vuetify utility classes instead of custom CSS. Use `d-print-none` / `d-print-block` for print pages.
+8. Print pages (e.g. `pages/Staff/re_eva.vue`): the layout hides the drawer/app-bar when printing but `v-main` still keeps their padding, so the table prints narrow. Give the page `<v-container class="print-full" fluid>` and add an unscoped `<style>` with `@media print` rules (see `re_eva.vue`) that zero the `.v-main:has(.print-full)` padding and make the card/table 100% wide. Other print pages need the same fix if they print too narrow.
 
 ### Vuetify 4 gotchas
 - Typography uses MD3 names. `text-h1..h6`, `text-subtitle-*` and `text-body-1/2` **don't exist**. Use `text-display-*`, `text-headline-*`, `text-title-*`, `text-body-large|medium|small` and `text-label-*`.
